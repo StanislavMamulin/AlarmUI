@@ -80,7 +80,8 @@ const removeDay = async (date) => {
 
 export {
   createAlarm,
-  storageKeyForAlarm as keyForAlarm,
+  storageKeyForAlarm,
+  storageKeyForADay,
   getAlarmsForDay,
   getAlarmsForPeriod,
   changeAlarm,

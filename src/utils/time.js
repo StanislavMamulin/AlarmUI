@@ -9,8 +9,11 @@ const stringDateToObjectDate = (key, value) => {
   return value;
 };
 
+const startOfTheDay = (date) => new Date(date).setHours(0, 0, 0, 0);
+
 export {
   timestampWithoutMS,
   getCurrentTimestampWithoutMS,
   stringDateToObjectDate,
+  startOfTheDay,
 };

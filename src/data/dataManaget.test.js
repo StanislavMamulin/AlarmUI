@@ -8,7 +8,7 @@ import {
   getAlarmsForPeriod,
   changeAlarm,
   removeDay,
-  keyForAlarm,
+  storageKeyForAlarm,
 } from './dataManager';
 
 import { stringDateToObjectDate } from '../utils/time';
@@ -24,7 +24,7 @@ describe('AsyncStorage test', () => {
 
     await createAlarm(newAlarm);
 
-    const key = keyForAlarm(newAlarm);
+    const key = storageKeyForAlarm(newAlarm);
     const alarmJSON = await AsyncStorage.getItem(key);
 
     expect(alarmJSON).not.toBeNull();
@@ -52,7 +52,7 @@ describe('AsyncStorage test', () => {
     await createAlarm(newAlarm1);
     await createAlarm(newAlarm2);
 
-    const key = keyForAlarm(newAlarm1);
+    const key = storageKeyForAlarm(newAlarm1);
     const alarmsJSON = await AsyncStorage.getItem(key);
 
     expect(alarmsJSON).not.toBeNull();
@@ -105,9 +105,9 @@ describe('AsyncStorage test', () => {
     const keys = await AsyncStorage.getAllKeys();
     expect(keys.length).toEqual(3);
 
-    await AsyncStorage.removeItem(keyForAlarm(newAlarm1));
-    await AsyncStorage.removeItem(keyForAlarm(newAlarm3));
-    await AsyncStorage.removeItem(keyForAlarm(newAlarm5));
+    await AsyncStorage.removeItem(storageKeyForAlarm(newAlarm1));
+    await AsyncStorage.removeItem(storageKeyForAlarm(newAlarm3));
+    await AsyncStorage.removeItem(storageKeyForAlarm(newAlarm5));
   });
 
   test('should return alarms for the day', async () => {
@@ -124,7 +124,7 @@ describe('AsyncStorage test', () => {
     const alarms = await getAlarmsForDay(testDate);
     expect(alarms).toEqual([newAlarm]);
 
-    await AsyncStorage.removeItem(keyForAlarm(newAlarm));
+    await AsyncStorage.removeItem(storageKeyForAlarm(newAlarm));
   });
   test('should return alarms for period', async () => {
     const testDate = new Date(2021, 2, 2, 11, 11);
@@ -172,10 +172,10 @@ describe('AsyncStorage test', () => {
     expect(alarms.length).toEqual(3);
     expect(alarms).toEqual([[newAlarm], [newAlarm2], [newAlarm3]]);
 
-    await AsyncStorage.removeItem(keyForAlarm(newAlarm));
-    await AsyncStorage.removeItem(keyForAlarm(newAlarm2));
-    await AsyncStorage.removeItem(keyForAlarm(newAlarm3));
-    await AsyncStorage.removeItem(keyForAlarm(newAlarm4));
+    await AsyncStorage.removeItem(storageKeyForAlarm(newAlarm));
+    await AsyncStorage.removeItem(storageKeyForAlarm(newAlarm2));
+    await AsyncStorage.removeItem(storageKeyForAlarm(newAlarm3));
+    await AsyncStorage.removeItem(storageKeyForAlarm(newAlarm4));
   });
 
   test('should change alarm data', async () => {
@@ -214,7 +214,7 @@ describe('AsyncStorage test', () => {
     expect(endAlarms.length).toEqual(2);
     expect(endAlarms).toEqual([newAlarm, changedAlarm2]);
 
-    await AsyncStorage.removeItem(keyForAlarm(newAlarm));
+    await AsyncStorage.removeItem(storageKeyForAlarm(newAlarm));
   });
 
   test('should remove a day from Storage', async () => {
@@ -257,5 +257,5 @@ test('should set time to 00:00:00', () => {
     description: 'Rise and shine, Mr. Freeman',
   };
   const beginOfTheDay = String(new Date(2021, 1, 1, 0, 0, 0, 0).getTime());
-  expect(keyForAlarm(newAlarm)).toEqual(beginOfTheDay);
+  expect(storageKeyForAlarm(newAlarm)).toEqual(beginOfTheDay);
 });
