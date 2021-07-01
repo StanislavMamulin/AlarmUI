@@ -1,53 +1,46 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { stringDateToObjectDate } from '../utils/time';
+import { startOfTheDay } from '../utils/time';
 
-const storageKeyForAlarm = (alarm) => String(new Date(alarm.date).setHours(0, 0, 0, 0));
-const storageKeyForADay = (date) => String(new Date(date).setHours(0, 0, 0, 0));
+const startOfTheDayForAlarm = (alarm) => startOfTheDay(alarm.date);
 
 const createAlarm = async (alarm) => {
-  const dayStorageKey = storageKeyForAlarm(alarm);
+  const day = startOfTheDayForAlarm(alarm);
+  let alarmsToAdd = [alarm];
 
-  let alarmJSON = JSON.stringify([alarm]);
   try {
-    const existAlarmsJSON = await AsyncStorage.getItem(dayStorageKey);
-    if (existAlarmsJSON) {
-      const existAlarms = JSON.parse(existAlarmsJSON, stringDateToObjectDate);
-      alarmJSON = JSON.stringify([...existAlarms, alarm]);
+    const existAlarms = await AsyncStorage.getItem(day);
+    if (existAlarms) {
+      alarmsToAdd = [...existAlarms, alarm];
     }
 
-    await AsyncStorage.setItem(dayStorageKey, alarmJSON);
+    await AsyncStorage.setItem(day, alarmsToAdd);
   } catch (error) {
     console.error(error);
   }
 };
 
-const getAlarmsForAKey = async (storageKey) => {
-  try {
-    const alarmsJSON = await AsyncStorage.getItem(storageKey);
-    if (alarmsJSON) {
-      return JSON.parse(alarmsJSON, stringDateToObjectDate);
-    }
+const getAlarmsForDay = async (date) => {
+  const day = startOfTheDay(date);
 
-    return null;
+  try {
+    const alarm = await AsyncStorage.getItem(day);
+    return alarm;
   } catch (error) {
     console.error(error);
     return null;
   }
-};
-
-const getAlarmsForDay = (date) => {
-  const dayStorageKey = storageKeyForADay(date);
-  return getAlarmsForAKey(dayStorageKey);
 };
 
 const getAlarmsForPeriod = async (beginDate, endDate) => {
-  const beginKey = storageKeyForADay(beginDate);
-  const endKey = storageKeyForADay(endDate);
+  const beginKey = startOfTheDay(beginDate);
+  const endKey = startOfTheDay(endDate);
   try {
     const daysInStorage = await AsyncStorage.getAllKeys();
 
-    const daysToReceive = daysInStorage.filter((dayKey) => dayKey >= beginKey && dayKey <= endKey);
-    const alarms = await Promise.all(daysToReceive.map((dayKey) => getAlarmsForAKey(dayKey)));
+    const daysToReceive = daysInStorage
+      .filter((dayKey) => dayKey >= beginKey && dayKey <= endKey);
+    const alarms = await Promise.all(daysToReceive
+      .map((dayKey) => getAlarmsForDay(parseInt(dayKey, 10))));
 
     return alarms;
   } catch (error) {
@@ -62,9 +55,6 @@ const changeAlarm = async (changedAlarm) => {
 
     const alarmForChange = alarms.find((alarm) => alarm.id === changedAlarm.id);
     Object.assign(alarmForChange, changedAlarm);
-
-    const key = storageKeyForAlarm(changedAlarm);
-    await AsyncStorage.mergeItem(key, JSON.stringify(alarms));
   } catch (error) {
     console.error(error);
   }
@@ -72,7 +62,7 @@ const changeAlarm = async (changedAlarm) => {
 
 const removeDay = async (date) => {
   try {
-    await AsyncStorage.removeItem(storageKeyForADay(date));
+    await AsyncStorage.removeItem(startOfTheDay(date));
   } catch (error) {
     console.error(error);
   }
@@ -80,10 +70,9 @@ const removeDay = async (date) => {
 
 export {
   createAlarm,
-  storageKeyForAlarm,
-  storageKeyForADay,
   getAlarmsForDay,
   getAlarmsForPeriod,
   changeAlarm,
   removeDay,
+  startOfTheDayForAlarm,
 };
