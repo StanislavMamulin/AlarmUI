@@ -1,5 +1,6 @@
 /* eslint-disable no-param-reassign */
 import { createSlice } from '@reduxjs/toolkit';
+import moment from 'moment';
 import { startOfTheDay } from '../utils/time';
 
 const initAlarms = {};
@@ -33,9 +34,53 @@ export const alarmsSlice = createSlice({
     resetAlarms: (state) => {
       state.alarms = initAlarms;
     },
+    addEmptyDays: (state, action) => {
+      const { numberOfDays, inTheEnd } = action.payload;
+
+      const dateKeys = Object.keys(state.alarms).sort();
+      if (inTheEnd) {
+        const lastDate = dateKeys[dateKeys.length - 1];
+        const m = moment(parseInt(lastDate, 10));
+
+        for (let d = 0; d < numberOfDays; d += 1) {
+          m.add(1, 'd');
+          state.alarms[m.format('x')] = [];
+        }
+      } else {
+        const firstDate = dateKeys[0];
+        const m = moment(parseInt(firstDate, 10));
+
+        for (let d = 0; d < numberOfDays; d += 1) {
+          m.subtract(1, 'd');
+          state.alarms[m.format('x')] = [];
+        }
+      }
+    },
+    addInitDays: (state) => {
+      // add -7 days before and 7 day after today
+      const halfDaysQuantity = 7;
+      const now = new Date();
+      const m = moment(now).startOf('day').subtract(halfDaysQuantity + 1, 'day');
+
+      for (let d = 0; d <= halfDaysQuantity * 2; d += 1) {
+        m.add(1, 'day');
+        const dayTimestamp = m.format('x');
+        if (state.alarms[dayTimestamp]) {
+          continue;
+        }
+        state.alarms[dayTimestamp] = [];
+      }
+    },
   },
 });
 
-export const { addAlarm, updateAlarm, resetAlarms } = alarmsSlice.actions;
+const { actions, reducer } = alarmsSlice;
+export const {
+  addAlarm,
+  updateAlarm,
+  resetAlarms,
+  addEmptyDays,
+  addInitDays,
+} = actions;
 
-export default alarmsSlice.reducer;
+export default reducer;

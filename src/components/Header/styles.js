@@ -2,12 +2,16 @@ import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    flexBasis: 200,
+    flexGrow: 0,
 
     padding: 8,
     marginTop: -4,
     marginHorizontal: -4,
+    marginBottom: 16,
     backgroundColor: 'white',
 
     shadowRadius: 5,
@@ -23,6 +27,7 @@ const styles = StyleSheet.create({
   addAlarmText: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: 'white',
   },
 });
 

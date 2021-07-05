@@ -14,7 +14,7 @@ const App = () => {
 
   return (
     <Provider store={store}>
-      <SafeAreaView>
+      <SafeAreaView style={{ flex: 1 }}>
         <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
         <HomeScreen />
       </SafeAreaView>
